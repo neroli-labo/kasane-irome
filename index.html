@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>襲色目あそび — かさねのいろめ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ============ 基調 ============ */
+:root{
+  --washi:#f3eee3;          /* 和紙 */
+  --washi-deep:#eae3d2;
+  --sumi:#2b2622;           /* 墨 */
+  --sumi-usui:#6b6258;      /* 薄墨 */
+  --shu:#a8412f;            /* 朱 */
+  --kin:#a8852f;            /* 金茶 */
+  --line:#cfc4ab;
+  --serif:"Shippori Mincho B1", serif;
+  --sans:"Zen Kaku Gothic New", sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--serif);
+  background:var(--washi);
+  color:var(--sumi);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+/* 和紙の質感（ノイズ） */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+/* 上下の霞 */
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 120% 30% at 50% -5%, rgba(168,65,47,0.06), transparent 60%),
+    radial-gradient(ellipse 120% 30% at 50% 105%, rgba(92,110,90,0.07), transparent 60%);
+}
+main{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 20px 100px;}
+
+/* ============ 見出し ============ */
+header{
+  display:flex;align-items:flex-start;justify-content:center;gap:28px;
+  padding:56px 0 36px;position:relative;
+}
+.title-tate{
+  writing-mode:vertical-rl;
+  font-size:clamp(34px,6vw,52px);
+  font-weight:600;letter-spacing:0.32em;
+  line-height:1;height:auto;
+  animation:fadein 1.4s ease both;
+}
+.title-tate .rubi{
+  display:block;font-size:12px;letter-spacing:0.5em;color:var(--sumi-usui);
+  margin-top:8px;font-weight:400;
+}
+.header-note{
+  writing-mode:vertical-rl;
+  font-size:13px;line-height:2.3;letter-spacing:0.18em;
+  color:var(--sumi-usui);max-height:300px;
+  animation:fadein 1.4s 0.3s ease both;
+  padding-top:10px;
+}
+.shu-dot{
+  position:absolute;top:62px;left:50%;transform:translateX(-160px);
+  width:54px;height:54px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%, #c25a44, var(--shu) 70%);
+  opacity:0.92;
+  box-shadow:0 4px 14px rgba(168,65,47,0.3);
+  animation:fadein 1.4s 0.5s ease both;
+}
+@media(max-width:640px){
+  .shu-dot{transform:translateX(-130px);width:40px;height:40px;}
+  .header-note{display:none;}
+}
+@keyframes fadein{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+/* ============ 短冊タブ ============ */
+nav{
+  display:flex;justify-content:center;gap:14px;margin-bottom:46px;flex-wrap:wrap;
+  animation:fadein 1.2s 0.6s ease both;
+}
+.tab{
+  font-family:var(--serif);font-size:16px;letter-spacing:0.3em;
+  padding:14px 10px 18px;width:64px;text-align:center;
+  background:#faf7ef;color:var(--sumi);
+  border:1px solid var(--line);border-top:4px solid var(--line);
+  cursor:pointer;position:relative;
+  writing-mode:vertical-rl;
+  transition:all .35s ease;
+  box-shadow:0 2px 6px rgba(60,50,30,0.07);
+}
+.tab:hover{transform:translateY(4px);}
+.tab.active{
+  border-top-color:var(--shu);color:var(--shu);
+  transform:translateY(7px);
+  box-shadow:0 6px 14px rgba(60,50,30,0.12);
+}
+.tab .small{font-size:10px;letter-spacing:0.2em;color:var(--sumi-usui);margin-top:6px;}
+
+/* ============ 共通パーツ ============ */
+.section{display:none;animation:fadein .7s ease both;}
+.section.active{display:block;}
+.sec-lead{
+  text-align:center;font-size:13.5px;line-height:2.1;letter-spacing:0.12em;
+  color:var(--sumi-usui);margin-bottom:36px;
+}
+.kazari{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 28px;}
+.kazari::before,.kazari::after{content:"";width:60px;height:1px;background:var(--line);}
+.kazari span{font-size:13px;letter-spacing:0.4em;color:var(--kin);}
+
+/* ============ 袖（重ね描画） ============ */
+.sode{position:relative;display:block;}
+.sode .layer{
+  position:absolute;left:0;right:0;
+  border-radius:3px 18px 3px 18px;
+  box-shadow:0 3px 10px rgba(50,40,25,0.18);
+  background-image:linear-gradient(105deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 35%, rgba(0,0,0,0.05) 90%);
+  transition:transform .4s cubic-bezier(.22,1,.36,1);
+}
+
+/* ============ 眺める：季節グループ ============ */
+.season-block{margin-bottom:56px;}
+.season-head{
+  display:flex;align-items:baseline;gap:16px;margin-bottom:22px;
+  border-bottom:1px solid var(--line);padding-bottom:10px;
+}
+.season-head h2{font-size:26px;font-weight:600;letter-spacing:0.3em;}
+.season-head .yomi{font-size:12px;letter-spacing:0.25em;color:var(--kin);}
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:22px;
+}
+.card{
+  background:#faf7ef;border:1px solid var(--line);
+  padding:20px 20px 18px;cursor:pointer;position:relative;
+  transition:transform .35s ease, box-shadow .35s ease;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(60,50,30,0.13);}
+.card:hover .layer{transform:translateX(6px) rotate(-0.6deg);}
+.card:hover .layer:nth-child(even){transform:translateX(-4px) rotate(0.5deg);}
+.card .sode{height:118px;margin-bottom:16px;}
+.card-name{display:flex;align-items:baseline;justify-content:space-between;}
+.card-name b{font-size:20px;font-weight:600;letter-spacing:0.18em;}
+.card-name span{font-size:11px;color:var(--sumi-usui);letter-spacing:0.15em;}
+.card-colors{
+  margin-top:8px;font-family:var(--sans);font-size:11px;font-weight:300;
+  color:var(--sumi-usui);letter-spacing:0.06em;
+}
+
+/* ============ 詳細（被せ） ============ */
+.overlay{
+  position:fixed;inset:0;z-index:50;display:none;
+  background:rgba(43,38,34,0.45);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;padding:24px;
+}
+.overlay.show{display:flex;animation:fadein .3s ease both;}
+.detail{
+  background:var(--washi);max-width:640px;width:100%;
+  border:1px solid var(--line);
+  padding:40px 40px 34px;position:relative;
+  box-shadow:0 20px 60px rgba(20,15,10,0.4);
+  max-height:90vh;overflow-y:auto;
+}
+.detail .close{
+  position:absolute;top:14px;right:18px;font-size:22px;cursor:pointer;
+  color:var(--sumi-usui);background:none;border:none;font-family:var(--serif);
+}
+.detail-flex{display:flex;gap:34px;align-items:stretch;}
+@media(max-width:560px){.detail-flex{flex-direction:column;}}
+.detail .sode{flex:1;min-height:240px;}
+.detail-text{flex:1;}
+.detail-title{
+  writing-mode:vertical-rl;float:right;margin-left:18px;
+  font-size:34px;font-weight:600;letter-spacing:0.25em;line-height:1.3;
+}
+.detail-title small{font-size:12px;color:var(--kin);letter-spacing:0.3em;display:block;margin-top:6px;}
+.detail-season{
+  display:inline-block;font-size:11px;letter-spacing:0.3em;color:#faf7ef;
+  background:var(--shu);padding:4px 12px 4px 14px;margin-bottom:14px;
+}
+.detail-desc{font-size:14px;line-height:2.2;letter-spacing:0.1em;}
+.detail-layers{margin-top:18px;font-family:var(--sans);font-size:12px;font-weight:300;}
+.detail-layers li{
+  list-style:none;display:flex;align-items:center;gap:10px;margin-bottom:6px;
+  color:var(--sumi-usui);
+}
+.detail-layers .chip{
+  width:34px;height:18px;border-radius:2px;border:1px solid rgba(0,0,0,0.12);
+  display:inline-block;flex:none;
+}
+
+/* ============ 当てる（遊び） ============ */
+.quiz-stage{
+  max-width:560px;margin:0 auto;background:#faf7ef;
+  border:1px solid var(--line);padding:38px 34px;
+  box-shadow:0 8px 26px rgba(60,50,30,0.1);position:relative;
+}
+.quiz-stage::before{
+  content:"";position:absolute;top:8px;left:8px;right:8px;bottom:8px;
+  border:1px solid var(--washi-deep);pointer-events:none;
+}
+.quiz-count{
+  text-align:center;font-size:12px;letter-spacing:0.35em;color:var(--kin);margin-bottom:18px;
+}
+.quiz-sode{height:170px;margin:0 auto 30px;max-width:340px;}
+.quiz-q{text-align:center;font-size:15px;letter-spacing:0.2em;margin-bottom:24px;}
+.quiz-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.quiz-choices{grid-template-columns:1fr;}}
+.choice{
+  font-family:var(--serif);font-size:17px;letter-spacing:0.25em;
+  padding:14px 8px;background:var(--washi);border:1px solid var(--line);
+  cursor:pointer;transition:all .25s ease;color:var(--sumi);
+}
+.choice:hover:not(:disabled){border-color:var(--shu);color:var(--shu);}
+.choice:disabled{cursor:default;}
+.choice.correct{background:var(--shu);color:#faf7ef;border-color:var(--shu);}
+.choice.wrong{opacity:0.4;text-decoration:line-through;}
+.quiz-result{
+  text-align:center;margin-top:22px;font-size:14px;line-height:2;letter-spacing:0.12em;
+  min-height:58px;
+}
+.quiz-result b{color:var(--shu);font-size:16px;}
+.quiz-next{
+  display:block;margin:10px auto 0;font-family:var(--serif);
+  font-size:14px;letter-spacing:0.3em;padding:10px 34px;
+  background:var(--sumi);color:#faf7ef;border:none;cursor:pointer;
+  transition:opacity .25s;
+}
+.quiz-next:hover{opacity:0.85;}
+.quiz-final{text-align:center;padding:20px 0;}
+.quiz-final .rank{
+  font-size:38px;font-weight:600;letter-spacing:0.2em;color:var(--shu);
+  display:block;margin:14px 0 8px;
+}
+.quiz-final p{font-size:13.5px;line-height:2.1;color:var(--sumi-usui);letter-spacing:0.1em;}
+
+/* ============ かさねる（あつらえ） ============ */
+.atelier{display:flex;gap:36px;align-items:flex-start;}
+@media(max-width:760px){.atelier{flex-direction:column;}}
+.palette-box{flex:1.2;}
+.palette{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:10px;
+}
+.p-color{
+  border:1px solid rgba(0,0,0,0.1);cursor:pointer;padding:0;
+  height:62px;position:relative;border-radius:2px;
+  transition:transform .2s ease, box-shadow .2s ease;
+  font-family:var(--serif);
+}
+.p-color:hover{transform:translateY(-3px);box-shadow:0 6px 14px rgba(50,40,25,0.2);}
+.p-color span{
+  position:absolute;bottom:0;left:0;right:0;
+  font-size:10.5px;letter-spacing:0.12em;padding:3px 0 4px;
+  background:rgba(250,247,239,0.88);color:var(--sumi);
+}
+.stage-box{flex:1;position:sticky;top:24px;}
+.stage-sode{height:230px;margin-bottom:20px;}
+.stage-sode .empty{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  border:1px dashed var(--line);border-radius:4px;
+  color:var(--sumi-usui);font-size:13px;letter-spacing:0.3em;
+}
+.stage-list{font-family:var(--sans);font-size:12px;font-weight:300;margin-bottom:16px;min-height:24px;}
+.stage-list li{
+  list-style:none;display:flex;align-items:center;gap:8px;margin-bottom:5px;color:var(--sumi-usui);
+}
+.stage-list .chip{width:30px;height:16px;border-radius:2px;border:1px solid rgba(0,0,0,0.12);flex:none;}
+.stage-list button{
+  margin-left:auto;background:none;border:none;cursor:pointer;color:var(--sumi-usui);
+  font-size:13px;font-family:var(--serif);
+}
+.stage-list button:hover{color:var(--shu);}
+.stage-actions{display:flex;gap:10px;}
+.btn-sub{
+  font-family:var(--serif);font-size:13px;letter-spacing:0.2em;
+  padding:9px 20px;background:none;border:1px solid var(--line);
+  cursor:pointer;color:var(--sumi-usui);transition:all .25s;
+}
+.btn-sub:hover{border-color:var(--shu);color:var(--shu);}
+.mitate{
+  margin-top:20px;padding:16px 18px;border-left:3px solid var(--kin);
+  background:rgba(168,133,47,0.06);font-size:13.5px;line-height:2;letter-spacing:0.1em;
+  display:none;
+}
+.mitate.show{display:block;animation:fadein .5s ease both;}
+.mitate b{color:var(--shu);}
+
+/* ============ 物語（古典） ============ */
+.work-block{margin-bottom:64px;}
+.work-head{
+  display:flex;align-items:baseline;gap:16px;margin-bottom:8px;
+  border-bottom:1px solid var(--line);padding-bottom:10px;
+}
+.work-head h2{font-size:24px;font-weight:600;letter-spacing:0.25em;}
+.work-intro{
+  font-size:13px;line-height:2;letter-spacing:0.1em;color:var(--sumi-usui);
+  margin-bottom:24px;
+}
+.tale-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;}
+.tale-card{
+  background:#faf7ef;border:1px solid var(--line);
+  padding:22px 22px 20px;position:relative;
+  transition:transform .35s ease, box-shadow .35s ease;
+}
+.tale-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(60,50,30,0.12);}
+.tale-card .sode{height:96px;margin-bottom:16px;}
+.tale-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.tale-head b{font-size:19px;font-weight:600;letter-spacing:0.15em;}
+.who-badge{
+  font-size:11px;letter-spacing:0.15em;color:#faf7ef;
+  background:var(--kin);padding:3px 10px;
+}
+.tale-chapter{font-size:11.5px;letter-spacing:0.12em;color:var(--shu);margin-bottom:10px;}
+.tale-scene{font-size:13px;line-height:2.05;letter-spacing:0.06em;color:var(--sumi);}
+
+/* ============ 今日（暦） ============ */
+.koyomi-stage{max-width:620px;margin:0 auto;}
+.koyomi-nav{display:flex;justify-content:center;gap:10px;margin-bottom:24px;}
+.koyomi-card{
+  background:#faf7ef;border:1px solid var(--line);
+  padding:38px 36px 32px;position:relative;text-align:center;
+  box-shadow:0 8px 26px rgba(60,50,30,0.1);
+}
+.koyomi-card::before{
+  content:"";position:absolute;top:8px;left:8px;right:8px;bottom:8px;
+  border:1px solid var(--washi-deep);pointer-events:none;
+}
+.koyomi-date{font-size:13px;letter-spacing:0.3em;color:var(--kin);margin-bottom:4px;}
+.koyomi-tsuki{font-size:21px;letter-spacing:0.35em;margin-bottom:24px;font-weight:500;}
+.koyomi-sode{height:180px;max-width:330px;margin:0 auto 26px;}
+.koyomi-iro{
+  height:180px;max-width:330px;margin:0 auto 26px;
+  border-radius:3px 20px 3px 20px;
+  box-shadow:0 6px 18px rgba(50,40,25,0.22);
+  background-image:linear-gradient(105deg, rgba(255,255,255,0.2), rgba(255,255,255,0) 40%, rgba(0,0,0,0.07) 92%);
+  position:relative;
+}
+.koyomi-name{font-size:32px;font-weight:600;letter-spacing:0.25em;margin-bottom:2px;}
+.koyomi-name small{display:block;font-size:12px;color:var(--sumi-usui);letter-spacing:0.3em;margin-top:6px;}
+.koyomi-season{
+  display:inline-block;font-size:11px;letter-spacing:0.3em;color:#faf7ef;
+  background:var(--shu);padding:4px 12px 4px 14px;margin:12px 0 18px;
+}
+.koyomi-note{
+  font-size:14px;line-height:2.15;letter-spacing:0.1em;text-align:left;
+  border-top:1px solid var(--washi-deep);padding-top:18px;
+}
+.koyomi-note .sub{font-size:12.5px;color:var(--sumi-usui);display:block;margin-top:8px;}
+
+footer{
+  text-align:center;margin-top:80px;font-size:11px;letter-spacing:0.25em;
+  color:var(--sumi-usui);line-height:2.2;
+}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="shu-dot" aria-hidden="true"></div>
+  <p class="header-note">四季のうつろいを、衣の袖口に。<br>平安の人びとが纏った色の取り合わせ、<br>「襲の色目」で遊ぶ小さな庭です。</p>
+  <h1 class="title-tate">襲色目あそび<span class="rubi">かさねのいろめ</span></h1>
+</header>
+
+<nav>
+  <button class="tab active" data-tab="view">眺める<span class="small">図鑑</span></button>
+  <button class="tab" data-tab="tales">物語<span class="small">古典</span></button>
+  <button class="tab" data-tab="quiz">当てる<span class="small">遊び</span></button>
+  <button class="tab" data-tab="make">かさねる<span class="small">誂え</span></button>
+  <button class="tab" data-tab="koyomi">今日<span class="small">暦</span></button>
+</nav>
+
+<!-- ============ 眺める ============ -->
+<section class="section active" id="sec-view">
+  <p class="sec-lead">季節ごとの襲をあつめました。札に触れると、いわれが開きます。</p>
+  <div id="zukan"></div>
+</section>
+
+<!-- ============ 物語 ============ -->
+<section class="section" id="sec-tales">
+  <p class="sec-lead">源氏物語、枕草子——古典の名場面には、襲の色目が小道具として登場します。<br>だれが、どんなときにまとった色なのか、かみ砕いてご案内します。</p>
+  <div id="tales"></div>
+</section>
+
+<!-- ============ 当てる ============ -->
+<section class="section" id="sec-quiz">
+  <div class="kazari"><span>色目当て</span></div>
+  <p class="sec-lead">袖口の色から、襲の名を言い当ててください。全五問。<br>平安の女房たちの教養試し、といったところです。</p>
+  <div class="quiz-stage" id="quiz-stage"></div>
+</section>
+
+<!-- ============ かさねる ============ -->
+<section class="section" id="sec-make">
+  <div class="kazari"><span>誂えの間</span></div>
+  <p class="sec-lead">伝統の色をえらんで、自分だけの襲を仕立ててみましょう（二〜五枚）。<br>仕立て上がると、似ている伝統の襲を見立てます。</p>
+  <div class="atelier">
+    <div class="palette-box">
+      <div class="palette" id="palette"></div>
+    </div>
+    <div class="stage-box">
+      <div class="sode stage-sode" id="stage-sode"><div class="empty">色をえらんでください</div></div>
+      <ul class="stage-list" id="stage-list"></ul>
+      <div class="stage-actions">
+        <button class="btn-sub" id="btn-clear">解く</button>
+        <button class="btn-sub" id="btn-mitate">見立てる</button>
+      </div>
+      <div class="mitate" id="mitate"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 今日 ============ -->
+<section class="section" id="sec-koyomi">
+  <div class="kazari"><span>今日の色</span></div>
+  <p class="sec-lead">三百六十五日、その日におすすめの日本の伝統色をひとつ。<br>毎日変わります。「次の日」をめくって、先の色をのぞくのも一興です。</p>
+  <div class="koyomi-stage">
+    <div class="koyomi-nav">
+      <button class="btn-sub" id="koyomi-prev">← 前の日</button>
+      <button class="btn-sub" id="koyomi-today">今日へ</button>
+      <button class="btn-sub" id="koyomi-next">次の日 →</button>
+    </div>
+    <div class="koyomi-card" id="koyomi-card"></div>
+  </div>
+</section>
+
+<footer>
+  襲の色目は文献により諸説あります。本作は代表的な説をもとにした意訳・再現です。<br>
+  古典の場面解説はかみ砕いた意訳、「今日の色」は季節にあわせた見立てです。<br>
+  Cape Light — 遊びの工房
+</footer>
+
+</main>
+
+<!-- 詳細被せ -->
+<div class="overlay" id="overlay">
+  <div class="detail" id="detail"></div>
+</div>
+
+<script>
+/* ==================================================
+   襲の色目データ（代表的な説に基づく意訳）
+   layers: 上（表）から順
+================================================== */
+const KASANE = [
+  // 春
+  {name:"梅", yomi:"うめ", season:"春", layers:[["白","#f7f3e8"],["蘇芳","#8e3e45"]],
+   desc:"表は白、裏に蘇芳。雪の名残のなかにほころぶ梅を映した、初春の襲。香り立つような取り合わせです。"},
+  {name:"紅梅", yomi:"こうばい", season:"春", layers:[["紅梅","#e1798a"],["蘇芳","#8e3e45"]],
+   desc:"表に紅梅、裏に蘇芳。枝いっぱいに咲きこぼれる紅梅の濃淡。若い女性に好まれた、春のはじめの華やぎです。"},
+  {name:"桜", yomi:"さくら", season:"春", layers:[["白","#fbf8f0"],["葡萄","#7a3756"]],
+   desc:"表は白、裏に葡萄染。白い花びらの奥にほの見える幹や蕾の色。満開の桜を一枚の衣にした、春の代表格です。"},
+  {name:"柳", yomi:"やなぎ", season:"春", layers:[["白","#f2f4ec"],["青","#5c8f7a"]],
+   desc:"表は白、裏に青（古来の緑）。芽吹いたばかりの柳が、春風にしろがねに揺れるさまを写しています。"},
+  {name:"山吹", yomi:"やまぶき", season:"春", layers:[["黄朽葉","#d3a243"],["黄","#f5c33a"]],
+   desc:"表に黄朽葉、裏に黄。晩春の野を染める山吹の、こぼれるような黄のかさなり。"},
+  {name:"藤", yomi:"ふじ", season:"春", layers:[["薄紫","#a294c5"],["萌黄","#a8c963"]],
+   desc:"表に薄紫、裏に萌黄。若葉の上にしだれる藤房。紫と緑の取り合わせは、平安びとがもっとも愛した配色のひとつです。"},
+  // 夏
+  {name:"卯の花", yomi:"うのはな", season:"夏", layers:[["白","#faf8ef"],["青","#6b9362"]],
+   desc:"表は白、裏に青。初夏の垣根に咲きみちる卯の花。白がいっそう涼しく見える、衣替えの頃の襲です。"},
+  {name:"杜若", yomi:"かきつばた", season:"夏", layers:[["二藍","#8a5c96"],["萌黄","#a8c963"]],
+   desc:"表に二藍、裏に萌黄。水辺にすっと立つ杜若の花と葉。紅と藍を掛け染めた「二藍」の深い紫が要です。"},
+  {name:"撫子", yomi:"なでしこ", season:"夏", layers:[["紅梅","#e1798a"],["青","#6b9362"]],
+   desc:"表に紅梅、裏に青。野に咲くなでしこの可憐さ。夏から秋口まで長く用いられました。"},
+  {name:"菖蒲", yomi:"しょうぶ", season:"夏", layers:[["青","#52668f"],["紅梅","#e1798a"]],
+   desc:"表に青、裏に紅梅。端午の節句、軒に葺いた菖蒲の葉と、その根もとの紅を映すといわれます。"},
+  {name:"蝉の羽", yomi:"せみのは", season:"夏", layers:[["檜皮","#8f5043"],["青","#6b9362"]],
+   desc:"表に檜皮、裏に青。盛夏の襲。薄物を透かして見える色を蝉の羽に見立てた、いかにも涼やかな名前です。"},
+  // 秋
+  {name:"萩", yomi:"はぎ", season:"秋", layers:[["蘇芳","#9e3d4b"],["青","#6b9362"]],
+   desc:"表に蘇芳、裏に青。秋草の筆頭、こぼれ咲く萩の花と葉。初秋の野辺をそのまま袖口に宿します。"},
+  {name:"女郎花", yomi:"おみなえし", season:"秋", layers:[["黄","#d9c45c"],["青","#86a697"]],
+   desc:"表に青みの黄、裏に青。秋の七草、女郎花の花と茎。経糸と緯糸で色を変える織り色目としても知られます。"},
+  {name:"紫苑", yomi:"しおん", season:"秋", layers:[["薄紫","#8a7eb5"],["青","#6b9362"]],
+   desc:"表に薄紫、裏に青。背高く咲く紫苑の花。『源氏物語』にもたびたび現れる、秋の気品ある襲です。"},
+  {name:"紅葉", yomi:"もみじ", season:"秋", layers:[["赤","#b13546"],["黄","#e2b13c"],["深緑","#4c6849"]],
+   desc:"赤・黄・緑をかさねて、染めわけられた山の錦を映します。何枚もかさねて「匂い」と呼ぶ濃淡を楽しみました。"},
+  {name:"菊", yomi:"きく", season:"秋", layers:[["白","#faf8ef"],["蘇芳","#8e3e45"]],
+   desc:"表は白、裏に蘇芳。長月の菊。霜にあたってうっすら色づく「移ろい菊」を愛でる、晩秋の襲です。"},
+  // 冬
+  {name:"枯野", yomi:"かれの", season:"冬", layers:[["黄","#cfc081"],["薄青","#a3b8a8"]],
+   desc:"表に黄、裏に薄青。草の枯れ伏した冬の野。さびしさをそのまま美しさに変えてしまう、冬らしい一襲です。"},
+  {name:"雪の下", yomi:"ゆきのした", season:"冬", layers:[["白","#fbf9f2"],["紅梅","#e1798a"]],
+   desc:"表は白、裏に紅梅。降り積む雪の下に、春を待つ紅がほのめく。冬から春へ橋を渡す、ゆかしい襲です。"},
+  {name:"氷", yomi:"こおり", season:"冬", layers:[["白","#f6f5f0"],["白","#e9e9e2"]],
+   desc:"表も裏も白。光をすかす氷を、白と白のわずかな差だけで表す——平安の美意識の極みともいわれる襲です。"},
+  {name:"松重", yomi:"まつがさね", season:"冬", layers:[["青","#4f7a5c"],["紫","#6e4a78"]],
+   desc:"表に青（緑）、裏に紫。常磐の松の緑に、けだかい紫をひそませて。祝いの席にも用いられた冬の襲です。"},
+  // 追加分
+  {name:"牡丹", yomi:"ぼたん", season:"春", layers:[["白","#fbf8f0"],["紅","#c6304d"]],
+   desc:"表は白、裏に紅。春の終わりに大輪をひらく牡丹。白い花びらの底に差す紅のあでやかさを映します。"},
+  {name:"花橘", yomi:"はなたちばな", season:"夏", layers:[["朽葉","#b98033"],["黄","#f5c33a"]],
+   desc:"表に朽葉、裏に黄。五月雨の頃に香る橘の花。「昔の人の袖の香ぞする」と詠まれた、思い出の香りの襲です。"},
+  {name:"夕顔", yomi:"ゆうがお", season:"夏", layers:[["白","#fbf9ef"],["黄","#f2d675"]],
+   desc:"表は白、裏に黄。夕暮れにひらいて朝にはしぼむ、はかない白い花。ほのかな黄が宵の灯りのようです。"},
+  {name:"青紅葉", yomi:"あおもみじ", season:"夏", layers:[["萌黄","#a8c963"],["青","#5c8f7a"]],
+   desc:"表に萌黄、裏に青。夏の楓のすがすがしい緑のかさね。紅葉の前の、もうひとつの見頃をまといます。"},
+  {name:"若竹", yomi:"わかたけ", season:"夏", layers:[["若竹","#6fb98f"],["萌黄","#a8c963"]],
+   desc:"表に若竹、裏に萌黄。すっと伸びた今年の竹の、みずみずしい青さ。風の音まで聞こえてきそうな襲です。"},
+  {name:"橘", yomi:"たちばな", season:"夏", layers:[["青","#5c8f7a"],["黄","#f5c33a"]],
+   desc:"表に青（緑）、裏に黄。常磐の葉に黄金の実をむすぶ橘。葉の緑を保ちつづけることから、めでたい木とされました。"},
+  {name:"撫子", yomi:"なでしこ", season:"秋", layers:[["紅花","#cb4042"],["山桃","#ad8a3b"]],
+   desc:"表に紅花、裏に山桃。秋風に揺れるなでしこを、紅花染と山桃染の深い取り合わせで。夏とはひと味違う、実りの季節の撫子です。"},
+  {name:"桔梗", yomi:"ききょう", season:"秋", layers:[["二藍","#6a51a3"],["青","#6b9362"]],
+   desc:"表に二藍、裏に青。秋の野にりんと咲く桔梗の、青みがかった紫をうつします。"},
+  {name:"菊", yomi:"きく", season:"秋", layers:[["白","#fbf8f0"],["浅紫","#a89dc8"]],
+   desc:"表は白、裏に浅紫。うっすら紫をふくむ白菊。霜の朝の気高さをまとう、もうひとつの菊の襲です。"},
+  {name:"鈍色", yomi:"にびいろ", season:"冬", layers:[["鈍色","#727171"],["薄鈍","#9fa0a0"]],
+   desc:"表に鈍色、裏に薄鈍。墨を流したような灰のかさねは、喪や出家のよそおい。源氏物語では悲しみの場面にかならず現れる色です。"},
+  {name:"蘇芳", yomi:"すおう", season:"冬", layers:[["蘇芳","#8e3e45"],["濃蘇芳","#5e2a31"]],
+   desc:"表に蘇芳、裏に濃き蘇芳。深い紅の濃淡は「匂い」と呼ばれ、冬の装いに重みと華やぎを添えました。"},
+  {name:"二藍", yomi:"ふたあい", season:"冬", layers:[["二藍","#8a5c96"],["薄二藍","#b69ac1"]],
+   desc:"表に二藍、裏に薄き二藍。紅と藍をかけ染めた、若い貴公子の色。年齢にあわせて紅と藍の割合を変えたといいます。"},
+  {name:"木賊", yomi:"とくさ", season:"冬", layers:[["木賊色","#456e63"],["淡萌黄","#b9cf8e"]],
+   desc:"表に木賊色、裏に淡い萌黄。冬も青い木賊（とくさ）の、深くしずかな緑。研ぎ澄まされた冬らしい一襲です。"},
+  {name:"紫", yomi:"むらさき", season:"冬", layers:[["紫","#6e4a78"],["薄紫","#a294c5"]],
+   desc:"表に紫、裏に薄紫。「薄様」とも呼ばれる紫の濃淡は、高貴の象徴。あらたまった冬の席にふさわしい襲です。"},
+];
+
+const SEASONS = [
+  {key:"春", yomi:"はる"},
+  {key:"夏", yomi:"なつ"},
+  {key:"秋", yomi:"あき"},
+  {key:"冬", yomi:"ふゆ"},
+];
+
+/* 誂え用の伝統色パレット */
+const PALETTE = [
+  ["白","#fbf8f0"],["桜色","#f1d3d7"],["紅梅","#e1798a"],["紅","#c6304d"],
+  ["蘇芳","#8e3e45"],["葡萄","#7a3756"],["檜皮","#8f5043"],["朱","#b15036"],
+  ["黄朽葉","#d3a243"],["山吹","#f5c33a"],["黄","#d9c45c"],["枯野黄","#cfc081"],
+  ["萌黄","#a8c963"],["柳青","#5c8f7a"],["青（緑）","#6b9362"],["松葉","#4f7a5c"],
+  ["深緑","#4c6849"],["青磁","#86a697"],["薄青","#a3b8a8"],["縹","#52668f"],
+  ["薄紫","#a294c5"],["紫苑","#8a7eb5"],["二藍","#8a5c96"],["紫","#6e4a78"],
+];
+
+/* ==================================================
+   古典に見る襲（だれが・どんな場面で）
+   ※ 諸説あるなかの代表的な解釈に基づく意訳
+================================================== */
+const MONOGATARI = [
+  {work:"源氏物語", intro:"紫式部が描いた光源氏の物語。衣の色は、人物の性格や運命を語る大切な小道具でした。",
+   items:[
+    {kasane:"山吹", who:"幼い日の紫の上", chapter:"若紫",
+     scene:"飼っていた雀の子を逃がしてしまい、泣きながら走ってくる少女。白い衣に着慣れた山吹をかさねた姿が、垣間見ていた光源氏の心を一瞬でつかみました。物語でいちばん有名な「初登場の装い」です。"},
+    {who:"紫の上", chapter:"玉鬘（衣配り）", layers:[["葡萄","#7a3756"],["紅梅","#e1798a"]], lname:"葡萄染に紅梅",
+     scene:"年の暮れ、光源氏が新年の晴れ着を女君たちに選んで贈る場面。紅梅の紋様が浮かぶ葡萄染という、いちばん華やかな一そろいは最愛の紫の上へ。贈る衣の色で源氏の心の内が透けて見える、有名なくだりです。"},
+    {kasane:"柳", who:"末摘花", chapter:"玉鬘（衣配り）",
+     scene:"同じ衣配りで、古風で不器用な末摘花に届いたのは柳の織物。上品だけれど控えめ——相手をよく分かったうえでの選びように、源氏の細やかさ（と少しの苦笑い）がにじみます。"},
+    {who:"末摘花", chapter:"末摘花", layers:[["聴色","#ecc3bc"],["黒貂の皮衣","#41382f"]], lname:"聴色に黒",
+     scene:"雪明かりの朝、源氏が初めて末摘花の姿をはっきり見る場面。色あせた聴色（淡い紅）の衣に、すすけた黒い袿、時代遅れの黒貂の皮衣。そして座高が高く、鼻は長く垂れて、先がほんのり紅い——。驚いた源氏ですが、ひたむきなお人柄を見捨てず、生涯支え続けました。色の取り合わせが人柄まで語る、有名なくだりです。"},
+    {kasane:"紅葉", who:"光源氏", chapter:"紅葉賀",
+     scene:"帝の御前、紅葉の散りしきる庭で「青海波」を舞う十八歳の光源氏。紅葉をかざして舞うあまりの美しさに、見る人はみな涙したと語られます。秋の色がいちばん輝く名場面です。"},
+    {kasane:"女郎花", who:"夕霧", chapter:"野分",
+     scene:"野分（台風）が吹き荒れた翌朝、夕霧が六条院の方々を見舞って回ります。庭では女郎花が露を帯びて倒れ伏し、その乱れた風情のなか、夕霧は思いがけず義母・紫の上の姿を垣間見てしまう——嵐が運んだ、ひそやかな事件の段です。"},
+    {who:"末摘花から玉鬘へ", chapter:"行幸（玉鬘の裳着）", layers:[["落栗","#704139"],["赤朽葉","#9e6335"]], lname:"落栗",
+     scene:"玉鬘の裳着（成人の祝い）を前に、方々から華やかな祝いの装束が届くなか、末摘花が贈ったのは「落栗色」という、いかにも昔風の渋い袷でした。源氏は思わず苦笑い。けれど流行を追わない生真面目な真心が、かえって心に残るくだりです。"},
+    {who:"夕霧と玉鬘", chapter:"藤袴", layers:[["薄紫","#a294c5"],["青","#6b9362"]], lname:"藤袴",
+     scene:"祖母・大宮の喪に服して、鈍色の衣をまとう玉鬘のもとへ。夕霧が、同じ喪につながる薄紫の藤袴の花を御簾の下から差し入れます。「同じ野の露にやつるる藤袴」——花に託して、ほのかな想いを伝える場面です。"},
+    {kasane:"藤", who:"夕霧と雲居雁", chapter:"藤裏葉",
+     scene:"長年仲を裂かれていた夕霧と雲居雁。藤の花の宴に招かれた夕霧が、ようやく結婚を許される春の夜です。藤は家の娘の象徴。藤の襲がそのまま物語の進行役を務めています。"},
+   ]},
+  {work:"枕草子", intro:"清少納言が中宮定子のもとで綴った随筆。「をかし」の目で、宮中の色彩が生き生きと書き留められています。",
+   items:[
+    {kasane:"紅梅", who:"中宮定子と妹君", chapter:"淑景舎、東宮にまゐりたまふほどのことなど",
+     scene:"定子さまと妹の淑景舎さまが顔を合わせる晴れの日。紅梅の御衣を何枚もかさねた装いのまばゆさを、清少納言がうっとりと書き留めています。冬から春の宮中で、紅梅はいちばんの流行色でした。"},
+    {kasane:"桜", who:"藤原斉信", chapter:"故殿の御ために、月ごとの十日…",
+     scene:"月の明るい夜、桜の直衣をひるがえして現れた貴公子・藤原斉信。「物語にほめている男君のようだ」と清少納言が大絶賛した場面です。男性も桜色を堂々とまとった時代でした。"},
+    {kasane:"菖蒲", who:"宮中のひとびと", chapter:"節は五月にしく月はなし",
+     scene:"「お節句は五月が最高」と清少納言。軒には菖蒲が葺かれ、人びとは菖蒲のかさねをまとい、宮中じゅうが青い香りに包まれます。青と紅梅の取り合わせは、この日の制服のようなものでした。"},
+    {kasane:"雪の下", who:"中宮定子と清少納言", chapter:"雪のいと高う降りたるに",
+     scene:"雪の深く積もった朝、定子さまが「香炉峰の雪はどうかしら」とひとこと。清少納言はすかさず御簾を高く巻き上げて、白い雪景色をお見せしました。漢詩「香炉峰の雪は簾を撥げて看る」を体で答えた、当意即妙の名場面です。この段に襲の指定はありませんが、白の下に紅梅がほのめく「雪の下」を、雪の御前の華やぎに見立てて添えました。"},
+    {kasane:"卯の花", who:"清少納言たち", chapter:"五月の御精進のほど",
+     scene:"ほととぎすの声を聞きに出かけた帰り、車いっぱいに卯の花を挿して大はしゃぎ。卯の花の垣根のような車で都大路を走り、人びとに笑われて——それすら「をかし」にしてしまう段です。"},
+   ]},
+  {work:"そのほかの古典", intro:"歌物語や日記にも、襲の色目は折々の心を映して登場します。",
+   items:[
+    {kasane:"杜若", who:"在原業平とされる男", chapter:"伊勢物語・東下り",
+     scene:"三河の国・八橋で、咲きみだれる杜若を見た旅人が「か・き・つ・ば・た」の五文字を句の頭に詠み込み、都に残した妻を想って涙する場面。杜若の襲は、この歌とともに初夏の代名詞になりました。"},
+    {kasane:"菊", who:"紫式部", chapter:"紫式部日記",
+     scene:"九月九日、重陽の節句。菊の花にかぶせて夜露と香りを移した綿「菊の着せ綿」が紫式部に届きます。その綿で顔をぬぐえば若返るというおまじない。移ろい菊の襲とともに楽しまれた、晩秋の優雅な行事です。"},
+    {who:"虫めづる姫君", chapter:"堤中納言物語", layers:[["練色","#ece8d8"],["白","#fbf8f0"]], lname:"練色に白",
+     scene:"毛虫をこよなく愛する型破りな姫君は、流行の襲にもお化粧にも興味なし。飾らない練色の衣で「ありのままがいちばん」と言い放ちます。襲の文化を裏側から照らしてくれる、ユーモラスな一編です。"},
+   ]},
+];
+
+/* ==================================================
+   暦 — その日のおすすめ襲（新暦へのあてはめ）
+================================================== */
+const KOYOMI = [
+  {from:[1,1],  to:[1,15],  name:"松重", note:"新しい年のはじまり。常磐の松の緑に紫をひそませて、ことほぎの心を装います。"},
+  {from:[1,16], to:[2,3],   name:"雪の下", note:"一年でいちばん寒い「寒の内」。積もる雪の下で、春の紅はもう支度を始めています。"},
+  {from:[2,4],  to:[2,29],  name:"梅", note:"暦の上ではもう春。ほころびはじめた梅を、袖口にひとあし先に咲かせましょう。"},
+  {from:[3,1],  to:[3,15],  name:"紅梅", note:"梅が盛りを迎える頃。濃い紅のかさねで、春本番への期待をまといます。"},
+  {from:[3,16], to:[4,10],  name:"桜", note:"桜の季節。白の奥にほのめく葡萄染が、満開の樹の影を映します。"},
+  {from:[4,11], to:[4,20],  name:"山吹", note:"晩春の野を染める山吹。こぼれるような黄のかさねで、行く春を惜しみます。"},
+  {from:[4,21], to:[5,4],   name:"藤", note:"藤棚の紫が見頃。若葉の萌黄としだれる薄紫は、平安びと一番のお気に入りでした。"},
+  {from:[5,5],  to:[5,14],  name:"菖蒲", note:"端午の節句。軒に菖蒲を葺き、青と紅梅のかさねで邪気を払います。"},
+  {from:[5,15], to:[5,31],  name:"杜若", note:"水辺に杜若がすっと立つ頃。「唐衣」の歌とともに、旅と初夏の襲です。"},
+  {from:[6,1],  to:[6,15],  name:"卯の花", note:"垣根に卯の花が咲きみちる衣替えの季節。白がいっそう涼しく見えます。"},
+  {from:[6,16], to:[7,10],  name:"撫子", note:"梅雨の晴れ間に、野のなでしこ。可憐な紅梅と青のかさねです。"},
+  {from:[7,11], to:[8,10],  name:"蝉の羽", note:"夏の盛り。薄物を透かす色を蝉の羽に見立てた、いちばん涼しい襲の出番です。"},
+  {from:[8,11], to:[8,31],  name:"女郎花", note:"立秋を過ぎ、野には早くも女郎花。黄と青のかさねが秋風を呼びます。"},
+  {from:[9,1],  to:[9,20],  name:"萩", note:"秋草の筆頭、萩がこぼれ咲く頃。蘇芳と青で、初秋の野辺を袖口に。"},
+  {from:[9,21], to:[10,10], name:"紫苑", note:"秋が深まりはじめる頃。背高く咲く紫苑の気品をまといます。"},
+  {from:[10,11],to:[10,31], name:"菊", note:"重陽を過ぎ、霜にあたって色づく「移ろい菊」を愛でる季節です。"},
+  {from:[11,1], to:[11,30], name:"紅葉", note:"山の錦が里へ降りてくる頃。赤・黄・緑をかさねて、染めわけの山を装います。"},
+  {from:[12,1], to:[12,20], name:"枯野", note:"草の枯れ伏す冬の野。さびしさを美しさに変えるのが、襲の真骨頂です。"},
+  {from:[12,21],to:[12,31], name:"氷", note:"冬至を過ぎ、年の瀬へ。白と白のわずかな差で光る氷を表す、極めつきの一襲です。"},
+];
+const TSUKINA = ["睦月","如月","弥生","卯月","皐月","水無月","文月","葉月","長月","神無月","霜月","師走"];
+const YOUBI = ["日","月","火","水","木","金","土"];
+
+/* ==================================================
+   今日の伝統色 — 月ごとの色のプールから日替わりで
+   [名前, よみ, 色, ひとこと]
+================================================== */
+const IRO365 = [
+  [ // 1月 睦月
+    ["白練","しろねり","#f3f3f2","けがれなき絹の白。神事にも用いられた、はじまりの色です。"],
+    ["朱色","しゅいろ","#eb6101","初詣の鳥居の朱。魔をはらう、晴れやかな赤です。"],
+    ["松葉色","まつばいろ","#839b5c","常磐の松の葉の緑。変わらぬものの象徴です。"],
+    ["銀鼠","ぎんねず","#91989f","冬空のような上品な鼠色。粋人に好まれました。"],
+    ["紺青","こんじょう","#192f60","凍てつく夜空の深い青。星がよく似合います。"],
+    ["練色","ねりいろ","#ede4cd","練り絹のやわらかな生成り。ぬくもりのある白です。"],
+    ["墨色","すみいろ","#595857","書き初めの墨の色。引き締まった新年の色です。"],
+    ["今様色","いまよういろ","#d0576b","「いまふうの色」の意。平安の流行色でした。"],
+  ],
+  [ // 2月 如月
+    ["紅梅色","こうばいいろ","#f2a0a1","ほころびはじめた紅梅の色。春待つ心の色です。"],
+    ["梅鼠","うめねず","#c099a0","梅の紅をふくんだ鼠色。早春の空気のような色です。"],
+    ["鶯色","うぐいすいろ","#878a3c","初音を待つ鶯の羽の色。渋い黄緑です。"],
+    ["薄紅梅","うすこうばい","#e597b2","紅梅をさらに淡く。雪解けの頃の色です。"],
+    ["灰桜","はいざくら","#e8d3d1","灰がかった淡い桜色。ひかえめな春の気配です。"],
+    ["韓紅","からくれない","#e95464","紅花を濃く染めた、あざやかな紅。恋の色とされました。"],
+    ["柳鼠","やなぎねず","#c8d5bb","芽吹き前の柳のような、緑がかった鼠色です。"],
+    ["千歳緑","ちとせみどり","#316745","千年変わらぬ松の深緑。長寿を祝う色です。"],
+  ],
+  [ // 3月 弥生
+    ["桜色","さくらいろ","#fef4f4","咲きはじめの桜の、ほんのり淡い紅。日本の春の色です。"],
+    ["桃色","ももいろ","#f09199","桃の節句の色。桜よりすこし濃い、愛らしい紅です。"],
+    ["菜の花色","なのはないろ","#ffec47","野を染める菜の花の黄。春の日ざしの色です。"],
+    ["若草色","わかくさいろ","#c3d825","萌え出たばかりの草の色。みずみずしい黄緑です。"],
+    ["萌黄","もえぎ","#aacf53","春の若葉の色。平安の若者の色でもありました。"],
+    ["一斤染","いっこんぞめ","#f5b1aa","紅花一斤で染めた淡い紅。誰でも着られた「ゆるし色」です。"],
+    ["浅縹","あさはなだ","#84b9cb","春霞の空のような、淡い藍の青です。"],
+    ["退紅","あらぞめ","#d69090","あえて淡く染めた紅。はかなさを楽しむ色です。"],
+  ],
+  [ // 4月 卯月
+    ["山吹色","やまぶきいろ","#f8b500","晩春の野を染める山吹の黄。小判の色のたとえにも。"],
+    ["藤色","ふじいろ","#a59aca","しだれる藤房の淡い紫。平安びとの憧れの色です。"],
+    ["躑躅色","つつじいろ","#e95295","咲きそろう躑躅の、目のさめるような紅紫です。"],
+    ["牡丹色","ぼたんいろ","#e7609e","百花の王・牡丹のあでやかな紅紫です。"],
+    ["若緑","わかみどり","#98d98e","若い松の葉のような、やわらかな緑です。"],
+    ["苗色","なえいろ","#b0ca71","苗代の稲のやさしい緑。実りへの第一歩の色です。"],
+    ["桜鼠","さくらねず","#e9dfe5","散りぎわの桜のような、灰がかった淡紅です。"],
+    ["菫色","すみれいろ","#7058a3","道ばたの菫の濃い紫。小さくても凛とした色です。"],
+  ],
+  [ // 5月 皐月
+    ["菖蒲色","あやめいろ","#674196","端午の節句の菖蒲の紫。邪気をはらう色です。"],
+    ["杜若色","かきつばたいろ","#3e62ad","水辺の杜若の青紫。「いずれあやめか」の色合いです。"],
+    ["若竹色","わかたけいろ","#68be8d","今年伸びた竹の、さわやかな緑です。"],
+    ["萌葱色","もえぎいろ","#006e54","葱の芽のような深い緑。歌舞伎の幕にも使われます。"],
+    ["撫子色","なでしこいろ","#eebbcb","なでしこの花のような、やさしい淡紅です。"],
+    ["卯の花色","うのはないろ","#f7fcfe","垣根に咲く卯の花の白。初夏のはじまりの色です。"],
+    ["瑠璃色","るりいろ","#1e50a2","宝石の瑠璃のような深い青。晴れた五月の空の色です。"],
+    ["緑","みどり","#3eb370","新緑まぶしいただの「緑」。この季節だけの輝きです。"],
+  ],
+  [ // 6月 水無月
+    ["露草色","つゆくさいろ","#38a1db","朝露に咲く露草の青。摺り染めにも使われました。"],
+    ["縹色","はなだいろ","#2792c3","藍染めの基本の青。雨上がりの空の色です。"],
+    ["青磁色","せいじいろ","#7ebea5","青磁の器のような、青みがかった淡緑です。"],
+    ["水色","みずいろ","#bce2e8","水面のような淡い青。梅雨の晴れ間の色です。"],
+    ["苔色","こけいろ","#69821b","雨に濡れて深まる苔の緑。六月がいちばん美しい色です。"],
+    ["薄花色","うすはないろ","#698aab","薄い縹色。紫陽花の移ろいにも似た青です。"],
+    ["白緑","びゃくろく","#d6e9ca","岩絵具の淡い緑。雨にけぶる若葉の色です。"],
+    ["藍色","あいいろ","#165e83","藍染めの深い青。日本の青の代表格です。"],
+  ],
+  [ // 7月 文月
+    ["桔梗色","ききょういろ","#5654a2","秋の七草・桔梗の青紫。七夕の夜空にも似た色です。"],
+    ["浅葱色","あさぎいろ","#00a3af","薄い葱の色の意の、さえた青緑。夏の水の色です。"],
+    ["天色","あまいろ","#2ca9e1","晴れわたった大空の色。入道雲がよく映えます。"],
+    ["白群","びゃくぐん","#83ccd2","岩絵具の淡い群青。涼を呼ぶ水浅葱です。"],
+    ["向日葵色","ひまわりいろ","#fcc800","真夏の太陽を追う向日葵の、力強い黄です。"],
+    ["珊瑚朱色","さんごしゅいろ","#ee836f","海の珊瑚のような明るい朱。夏祭りの色です。"],
+    ["月白","げっぱく","#eaf4fc","月の光をふくんだような、青みがかった白です。"],
+    ["瑠璃紺","るりこん","#19448e","瑠璃をさらに深く。夏の宵の空の色です。"],
+  ],
+  [ // 8月 葉月
+    ["茜色","あかねいろ","#b7282e","茜の根で染めた夕焼けの赤。一日の終わりの色です。"],
+    ["紺碧","こんぺき","#007bbb","真夏の海と空の、まじりけのない青です。"],
+    ["青竹色","あおたけいろ","#7ebeab","日ざかりの竹やぶの、すずしげな緑です。"],
+    ["柑子色","こうじいろ","#f6ad49","柑子みかんのような明るい橙。元気の出る色です。"],
+    ["琥珀色","こはくいろ","#bf783a","太古の樹脂・琥珀の、透きとおる茶です。"],
+    ["胡粉色","ごふんいろ","#fffffc","貝殻から作る白。入道雲のまぶしさです。"],
+    ["鉄紺","てつこん","#17184b","鉄のように硬い紺。夜の海の色です。"],
+    ["薄萌葱","うすもえぎ","#badcad","盛夏にあえて淡い緑を。夕涼みの色です。"],
+  ],
+  [ // 9月 長月
+    ["紫苑色","しおんいろ","#867ba9","秋風に揺れる紫苑の、気品ある薄紫です。"],
+    ["女郎花色","おみなえしいろ","#f2f2b0","女郎花の花のような、緑をふくむ淡黄です。"],
+    ["江戸紫","えどむらさき","#745399","青みの強い粋な紫。歌舞伎の鉢巻の色です。"],
+    ["刈安色","かりやすいろ","#f5e56b","刈安草で染めた、すこし青みの黄。実りの色です。"],
+    ["朽葉色","くちばいろ","#917347","落ち葉のくすんだ黄茶。平安びとが愛した秋の色です。"],
+    ["葡萄色","えびいろ","#522f60","山葡萄の実の深い紫。熟した秋の色です。"],
+    ["小豆色","あずきいろ","#96514d","お彼岸のおはぎの色。あたたかみのある赤茶です。"],
+    ["鳥の子色","とりのこいろ","#fff1cf","卵の殻のようなやさしい淡黄。和紙の色でもあります。"],
+  ],
+  [ // 10月 神無月
+    ["黄金色","こがねいろ","#e6b422","頭を垂れる稲穂の色。実りの秋の主役です。"],
+    ["柿色","かきいろ","#ed6d3d","軒先に吊るした柿の、あたたかな橙です。"],
+    ["黄朽葉","きくちば","#d3a243","黄ばみはじめた落ち葉の色。秋の深まりの色です。"],
+    ["鬱金色","うこんいろ","#fabf14","鬱金で染めた濃い黄。色づく銀杏並木の色です。"],
+    ["栗色","くりいろ","#762f07","つやのある栗の皮の、深い焦げ茶です。"],
+    ["利休茶","りきゅうちゃ","#a59564","侘びた緑みの茶。茶の湯の心の色です。"],
+    ["渋紙色","しぶかみいろ","#946243","柿渋を塗った紙の色。使い込んだ道具の風合いです。"],
+    ["蘇芳","すおう","#9e3d3f","蘇芳の木で染めた深い紅。錦秋の幕開けです。"],
+  ],
+  [ // 11月 霜月
+    ["緋色","ひいろ","#d3381c","燃えるような紅葉の赤。秋のクライマックスの色です。"],
+    ["黄櫨染","こうろぜん","#d66a35","天皇だけが着られた絶対の禁色。夕日のような黄赤です。"],
+    ["落栗色","おちぐりいろ","#704139","落ちた栗のような濃い赤茶。山の実りの色です。"],
+    ["海老茶","えびちゃ","#773c30","伊勢海老のような赤茶。明治の女学生の袴の色です。"],
+    ["金茶","きんちゃ","#f39800","金色がかった明るい茶。散りぎわの欅の色です。"],
+    ["弁柄色","べんがらいろ","#8f2e14","土から生まれた赤茶。格子戸や蔵の色です。"],
+    ["枯草色","かれくさいろ","#e4dc8a","枯れすすきの淡い黄。冬支度の野の色です。"],
+    ["媚茶","こびちゃ","#716246","昆布のような渋い茶。粋な大人の色とされました。"],
+  ],
+  [ // 12月 師走
+    ["白磁","はくじ","#f8fbf8","白磁の器のような、青みをふくむ白。初雪の色です。"],
+    ["鈍色","にびいろ","#727171","雪雲の垂れこめる空の色。静けさの色です。"],
+    ["常磐色","ときわいろ","#007b43","冬も変わらぬ常緑の深緑。柊や松の色です。"],
+    ["臙脂","えんじ","#b94047","深く落ち着いた紅。冬のあたたかみの色です。"],
+    ["深縹","こきはなだ","#2a4073","凍てつく夜の深い青。星空がよく似合います。"],
+    ["白銀","しろがね","#dcdddd","降り積もった雪の輝き。銀世界の色です。"],
+    ["消炭色","けしずみいろ","#524e4d","火を消した炭の色。囲炉裏ばたの色です。"],
+    ["滅紫","けしむらさき","#594255","灰がかった深い紫。年の瀬の夕暮れの色です。"],
+  ],
+];
+
+/* ==================================================
+   袖（重ね）描画 — 上の層ほど大きく、下が裾からのぞく
+================================================== */
+function renderSode(el, layers){
+  el.innerHTML = "";
+  const n = layers.length;
+  const step = 44 / n; // 下の層が裾からのぞく幅(%)
+  layers.forEach((ly, i) => {
+    const d = document.createElement("div");
+    d.className = "layer";
+    d.style.top = (i * 2.5) + "%";
+    d.style.bottom = ((n - 1 - i) * step) + "%";
+    d.style.left = (i * 1.2) + "%";
+    d.style.right = (i * 1.2) + "%";
+    d.style.zIndex = n - i;
+    d.style.backgroundImage =
+      "linear-gradient(105deg, rgba(255,255,255,0.25), rgba(255,255,255,0) 40%, rgba(0,0,0,0.06) 92%)," +
+      "linear-gradient(" + ly[1] + "," + ly[1] + ")";
+    d.style.transform = "rotate(" + (i % 2 ? 0.4 : -0.4) + "deg)";
+    el.appendChild(d);
+  });
+}
+
+/* ==================================================
+   眺める（図鑑）
+================================================== */
+function buildZukan(){
+  const wrap = document.getElementById("zukan");
+  SEASONS.forEach(s => {
+    const items = KASANE.filter(k => k.season === s.key);
+    const block = document.createElement("div");
+    block.className = "season-block";
+    block.innerHTML =
+      '<div class="season-head"><h2>' + s.key + "</h2><span class=\"yomi\">" + s.yomi + "</span></div>";
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    items.forEach(k => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="sode"></div>' +
+        '<div class="card-name"><b>' + k.name + "</b><span>" + k.yomi + "</span></div>" +
+        '<div class="card-colors">' + k.layers.map(l => l[0]).join(" ／ ") + "</div>";
+      renderSode(card.querySelector(".sode"), k.layers);
+      card.addEventListener("click", () => openDetail(k));
+      grid.appendChild(card);
+    });
+    block.appendChild(grid);
+    wrap.appendChild(block);
+  });
+}
+
+function openDetail(k){
+  const d = document.getElementById("detail");
+  d.innerHTML =
+    '<button class="close" aria-label="閉じる">×</button>' +
+    '<div class="detail-flex">' +
+      '<div class="sode"></div>' +
+      '<div class="detail-text">' +
+        '<div class="detail-title">' + k.name + "<small>" + k.yomi + "</small></div>" +
+        '<span class="detail-season">' + k.season + "の襲</span>" +
+        '<p class="detail-desc">' + k.desc + "</p>" +
+        '<ul class="detail-layers">' +
+          k.layers.map((l,i) =>
+            "<li><span class=\"chip\" style=\"background:" + l[1] + "\"></span>" +
+            (i === 0 ? "表" : (i === k.layers.length-1 ? "裏" : "間")) + "　" + l[0] + "</li>"
+          ).join("") +
+        "</ul>" +
+      "</div>" +
+    "</div>";
+  renderSode(d.querySelector(".sode"), k.layers);
+  const ov = document.getElementById("overlay");
+  ov.classList.add("show");
+  d.querySelector(".close").addEventListener("click", () => ov.classList.remove("show"));
+}
+document.getElementById("overlay").addEventListener("click", e => {
+  if (e.target.id === "overlay") e.target.classList.remove("show");
+});
+
+/* ==================================================
+   物語（古典に見る襲）
+================================================== */
+function taleLayers(item){
+  if (item.layers) return item.layers;
+  const k = KASANE.find(x => x.name === item.kasane);
+  return k ? k.layers : [];
+}
+function buildTales(){
+  const wrap = document.getElementById("tales");
+  MONOGATARI.forEach(w => {
+    const block = document.createElement("div");
+    block.className = "work-block";
+    block.innerHTML =
+      '<div class="work-head"><h2>' + w.work + "</h2></div>" +
+      '<p class="work-intro">' + w.intro + "</p>";
+    const grid = document.createElement("div");
+    grid.className = "tale-grid";
+    w.items.forEach(it => {
+      const name = it.kasane || it.lname;
+      const card = document.createElement("div");
+      card.className = "tale-card";
+      card.innerHTML =
+        '<div class="sode"></div>' +
+        '<div class="tale-head"><b>' + name + '</b><span class="who-badge">' + it.who + "</span></div>" +
+        '<div class="tale-chapter">「' + it.chapter + "」より</div>" +
+        '<p class="tale-scene">' + it.scene + "</p>";
+      renderSode(card.querySelector(".sode"), taleLayers(it));
+      grid.appendChild(card);
+    });
+    block.appendChild(grid);
+    wrap.appendChild(block);
+  });
+}
+
+/* ==================================================
+   今日の襲（暦）
+================================================== */
+let koyomiOffset = 0;
+
+function findKoyomi(m, d){
+  const v = m * 100 + d;
+  return KOYOMI.find(p => v >= p.from[0] * 100 + p.from[1] && v <= p.to[0] * 100 + p.to[1]) || KOYOMI[0];
+}
+
+function renderKoyomi(){
+  const date = new Date();
+  date.setDate(date.getDate() + koyomiOffset);
+  const m = date.getMonth() + 1, d = date.getDate();
+  const pool = IRO365[m - 1];
+  const iro = pool[(d - 1) % pool.length];
+  const period = findKoyomi(m, d);
+  const card = document.getElementById("koyomi-card");
+  card.innerHTML =
+    '<div class="koyomi-date">' + date.getFullYear() + "年" + m + "月" + d + "日（" + YOUBI[date.getDay()] + "）" +
+      (koyomiOffset === 0 ? "　— 今日" : "") + "</div>" +
+    '<div class="koyomi-tsuki">' + TSUKINA[m - 1] + "</div>" +
+    '<div class="koyomi-iro" style="background-color:' + iro[2] + '"></div>' +
+    '<div class="koyomi-name">' + iro[0] + "<small>" + iro[1] + "　" + iro[2] + "</small></div>" +
+    '<p class="koyomi-note">' + iro[3] +
+      '<span class="sub">この時季の襲は「' + period.name + "」。図鑑の間でどうぞ。</span></p>";
+}
+
+document.getElementById("koyomi-prev").addEventListener("click", () => { koyomiOffset--; renderKoyomi(); });
+document.getElementById("koyomi-next").addEventListener("click", () => { koyomiOffset++; renderKoyomi(); });
+document.getElementById("koyomi-today").addEventListener("click", () => { koyomiOffset = 0; renderKoyomi(); });
+
+/* ==================================================
+   当てる（五問勝負）
+================================================== */
+const QUIZ_TOTAL = 5;
+let quiz = null;
+
+function shuffle(a){
+  const arr = a.slice();
+  for (let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startQuiz(){
+  quiz = { order: shuffle(KASANE).slice(0, QUIZ_TOTAL), idx: 0, score: 0 };
+  nextQuestion();
+}
+
+function nextQuestion(){
+  const stage = document.getElementById("quiz-stage");
+  if (quiz.idx >= QUIZ_TOTAL){ return showFinal(); }
+  const answer = quiz.order[quiz.idx];
+  const wrongs = shuffle(KASANE.filter(k => k.name !== answer.name)).slice(0, 3);
+  const choices = shuffle([answer, ...wrongs]);
+
+  stage.innerHTML =
+    '<div class="quiz-count">第' + "一二三四五"[quiz.idx] + "問 ／ 全五問</div>" +
+    '<div class="sode quiz-sode"></div>' +
+    '<p class="quiz-q">この袖口の襲、なんと申すでしょう。</p>' +
+    '<div class="quiz-choices">' +
+      choices.map(c => '<button class="choice" data-name="' + c.name + '">' + c.name + "</button>").join("") +
+    "</div>" +
+    '<div class="quiz-result" id="quiz-result"></div>';
+  renderSode(stage.querySelector(".sode"), answer.layers);
+
+  stage.querySelectorAll(".choice").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const ok = btn.dataset.name === answer.name;
+      if (ok) quiz.score++;
+      stage.querySelectorAll(".choice").forEach(b => {
+        b.disabled = true;
+        if (b.dataset.name === answer.name) b.classList.add("correct");
+        else if (b === btn) b.classList.add("wrong");
+      });
+      const r = document.getElementById("quiz-result");
+      r.innerHTML =
+        (ok ? "<b>お見事。</b>" : "<b>惜しい。</b>正しくは「" + answer.name + "」。") +
+        "<br><span style='font-size:12.5px;color:var(--sumi-usui)'>" +
+        answer.layers.map(l => l[0]).join("に") + "をかさねた、" + answer.season + "の襲です。</span>" +
+        '<button class="quiz-next">' + (quiz.idx === QUIZ_TOTAL - 1 ? "結果を見る" : "次の問いへ") + "</button>";
+      r.querySelector(".quiz-next").addEventListener("click", () => { quiz.idx++; nextQuestion(); });
+    });
+  });
+}
+
+function showFinal(){
+  const s = quiz.score;
+  const ranks = [
+    [5, "中宮さま", "完璧な色の教養。あなたの袖口は、後宮一の評判となるでしょう。"],
+    [4, "上臈の女房", "あっぱれ。歌合せにも色合わせにも、ひけを取りません。"],
+    [3, "若き女房", "なかなかの目利き。あと一歩で殿上の評判です。"],
+    [2, "見習いの童", "色の道はこれから。図鑑を眺めて、また挑んでください。"],
+    [0, "都に来たばかり", "まずは「眺める」の間で、四季の襲とお近づきになりましょう。"],
+  ];
+  const rank = ranks.find(r => s >= r[0]);
+  document.getElementById("quiz-stage").innerHTML =
+    '<div class="quiz-final">' +
+      '<div class="quiz-count">結果</div>' +
+      '<p>全五問中、<b style="color:var(--shu)">' + s + "問</b>正解</p>" +
+      '<span class="rank">' + rank[1] + "</span>" +
+      "<p>" + rank[2] + "</p>" +
+      '<button class="quiz-next" id="quiz-retry">もう一度</button>' +
+    "</div>";
+  document.getElementById("quiz-retry").addEventListener("click", startQuiz);
+}
+
+/* ==================================================
+   かさねる（誂え）
+================================================== */
+const stack = [];
+const MAX_LAYERS = 5;
+
+function buildPalette(){
+  const pal = document.getElementById("palette");
+  PALETTE.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "p-color";
+    b.style.background = c[1];
+    b.innerHTML = "<span>" + c[0] + "</span>";
+    b.addEventListener("click", () => {
+      if (stack.length >= MAX_LAYERS) return;
+      stack.push(c);
+      renderStage();
+    });
+    pal.appendChild(b);
+  });
+}
+
+function renderStage(){
+  const sode = document.getElementById("stage-sode");
+  const list = document.getElementById("stage-list");
+  document.getElementById("mitate").classList.remove("show");
+  if (stack.length === 0){
+    sode.innerHTML = '<div class="empty">色をえらんでください</div>';
+    list.innerHTML = "";
+    return;
+  }
+  renderSode(sode, stack);
+  list.innerHTML = stack.map((c, i) =>
+    "<li><span class=\"chip\" style=\"background:" + c[1] + "\"></span>" +
+    (i === 0 ? "表" : (i === stack.length-1 && stack.length > 1 ? "裏" : "間")) + "　" + c[0] +
+    "<button data-i=\"" + i + "\" aria-label=\"はずす\">はずす</button></li>"
+  ).join("");
+  list.querySelectorAll("button").forEach(b => {
+    b.addEventListener("click", () => { stack.splice(Number(b.dataset.i), 1); renderStage(); });
+  });
+}
+
+function hexToRgb(h){
+  const v = h.replace("#","");
+  return [parseInt(v.slice(0,2),16), parseInt(v.slice(2,4),16), parseInt(v.slice(4,6),16)];
+}
+function colorDist(a, b){
+  const A = hexToRgb(a), B = hexToRgb(b);
+  return Math.sqrt((A[0]-B[0])**2 + (A[1]-B[1])**2 + (A[2]-B[2])**2);
+}
+
+function mitate(){
+  if (stack.length < 2){
+    const m = document.getElementById("mitate");
+    m.innerHTML = "二枚以上かさねてから、お申し付けください。";
+    m.classList.add("show");
+    return;
+  }
+  let best = null, bestScore = Infinity;
+  KASANE.forEach(k => {
+    const n = Math.min(stack.length, k.layers.length);
+    let d = 0;
+    for (let i = 0; i < n; i++) d += colorDist(stack[i][1], k.layers[i][1]);
+    d = d / n + Math.abs(stack.length - k.layers.length) * 24;
+    if (d < bestScore){ bestScore = d; best = k; }
+  });
+  const close = bestScore < 72;
+  const m = document.getElementById("mitate");
+  m.innerHTML = close
+    ? "この取り合わせ、" + best.season + "の襲「<b>" + best.name + "</b>（" + best.yomi + "）」によく似ております。<br>" +
+      "<span style='font-size:12.5px;color:var(--sumi-usui)'>" + best.desc + "</span>"
+    : "いずれの古式にもない、あなただけの襲のようです。<br>" +
+      "<span style='font-size:12.5px;color:var(--sumi-usui)'>しいて申せば「" + best.name + "」（" + best.season + "）が遠い親戚でしょうか。新しい名を付けてあげてください。</span>";
+  m.classList.add("show");
+}
+
+document.getElementById("btn-clear").addEventListener("click", () => { stack.length = 0; renderStage(); });
+document.getElementById("btn-mitate").addEventListener("click", mitate);
+
+/* ==================================================
+   タブ切り替え
+================================================== */
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("sec-" + t.dataset.tab).classList.add("active");
+    if (t.dataset.tab === "quiz" && !quiz) startQuiz();
+  });
+});
+
+/* 初期化 */
+buildZukan();
+buildTales();
+buildPalette();
+renderKoyomi();
+</script>
+</body>
+</html>
